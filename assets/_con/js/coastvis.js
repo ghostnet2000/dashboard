@@ -7,8 +7,9 @@
  */
 CoastVis = function(_parentElement, _data, _metaData,_eventHandler) {
   this.parentElement = _parentElement;
-  this.stationData = _data;
-  this.filtered = _data;
+  this.stationData = _data.data;;
+  console.log(_data);
+  this.filtered = _data.data;
   this.stations = d3.keys(_data);
   this.neighborhoods = _metaData;
   this.eventHandler = _eventHandler;
@@ -97,9 +98,9 @@ CoastVis.prototype.updateVis = function() {
        r = 25000,
        c = that.color(o.province);
        
-      var popup = L.popup(popup_options).setContent(o.properties.article_title);
-      var circle = L.circle([o.properties.lat, o.properties.lon], r, {color: c, opacity: 1, fillOpacity: 0.8, className:'station',weight:2}).bindPopup(popup)
-      circle.bindPopup(o.properties.article_title);
+      var popup = L.popup(popup_options).setContent(o.article_title);
+      var circle = L.circle([o.lat, o.lon], r, {color: c, opacity: 1, fillOpacity: 0.8, className:'station',weight:2}).bindPopup(popup)
+      circle.bindPopup(o.article_title);
       circle.on('mouseover', function() {
           circle.openPopup();
 
@@ -146,15 +147,15 @@ CoastVis.prototype.updateVis = function() {
         that.filtered = that.stationData;
      } else {
         that.filtered = that.stationData.filter(function(d) {
-            return (d.properties.province == _filter.toUpperCase() )
+            return (d.province == _filter.toUpperCase() )
         })
      }  
    } else {
-     this.filter = all
+     //this.filter = all
    }
 
    //
-   this.displayStations = this.stationData.filter(this.filterHood);
+   //this.displayStations = this.stationData.filter(this.filterHood);
    
  };
 

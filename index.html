@@ -1502,6 +1502,28 @@
 
 
     <script>
+     var MyEventHandler = { }
+
+     $(document).ready(function() {
+     
+     $.ajax({
+         type: "GET",
+         url: "http://localhost:3000/api/media",
+         contentType: "application/json",
+         dataType: "json",
+         success: function (data, status, jqXHR) {
+            // do something
+            console.log(data);
+
+            var neighborhoodVis = new CoastVis( d3.select("#map1"), data, [], MyEventHandler);
+         },
+
+         error: function (jqXHR, status) {
+             
+         }
+     });
+    });
+
     /*
      * Sparkline in Card panel
      */
@@ -1910,9 +1932,6 @@
     }());
     */
 
-
-    var MyEventHandler = { }
-    var neighborhoodVis = new CoastVis( d3.select("#map1"), [], [], MyEventHandler);
 
 
 
