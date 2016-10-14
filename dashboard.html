@@ -46,6 +46,10 @@
     <!-- nvd3 -->
     <link rel="stylesheet" type="text/css" href="bower_components/nvd3/build/nv.d3.min.css" />
 
+    <!-- mapbox -->
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.css' rel='stylesheet' />
+
 
 
 
@@ -983,7 +987,7 @@
                         </div>
                         <div class="progress small">
                             <div class="determinate" style="width: 43%"></div>
-                        </div>
+                        </div>rickshawStackedArearickshawStackedArea
 
                         <h4>27</h4>
                         <div class="row">
@@ -1072,7 +1076,7 @@
             <!-- map -->
             <div class="col s12 l8">
                 <div class="card">
-                    <div id="map1" class="map" style="height: 300px;"></div>
+                    <div id="map1" class="map" style="height: 400px;"></div>
                 </div>
             </div>
             <!-- /map -->
@@ -1414,11 +1418,16 @@
 
     </div>
     <!-- /Chat -->
+    <!--
     <footer>&copy; 2015
         <strong>nK</strong>. All rights reserved. <a href="http://themeforest.net/item/con-material-admin-dashboard-template/10621512?ref=_nK">Purchase</a></footer>
+    -->
 
     <!-- DEMO [REMOVE IT ON PRODUCTION] -->
     <script type="text/javascript" src="assets/_con/js/_demo.js"></script>
+    <script type="text/javascript" src="assets/_con/js/coastvis.js"></script>
+
+    <script type="text/javascript" src="assets/_con/libs/Polyline.encoded.js"></script>
 
     <!-- jQuery -->
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -1453,6 +1462,11 @@
 
     <!-- Rickshaw -->
     <script type="text/javascript" src="bower_components/rickshaw/rickshaw.min.js"></script>
+
+    <!-- mapbox -->
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.6/mapbox.js'></script>
+    <script type="text/javascript" src="assets/_con/libs/token.js"></script>
+
 
 
 
@@ -1873,8 +1887,10 @@
 
 
     /*
-     * MAP 1
+     * MAP 1 #map1
      */
+
+    /*
     (function() {
         $('#map1').vectorMap({
             map: 'world_mill_en',
@@ -1892,6 +1908,13 @@
             }
         });
     }());
+    */
+
+
+    var MyEventHandler = { }
+    var neighborhoodVis = new CoastVis( d3.select("#map1"), [], [], MyEventHandler);
+
+
 
 
 
