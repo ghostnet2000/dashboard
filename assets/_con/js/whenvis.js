@@ -7,8 +7,8 @@
  */
 WhenVis = function(_parentElement, _data, _eventHandler) {
   this.parentElement = _parentElement;
-  this.data = _data.features;
-  this.filtered = _data.features;
+  this.data = _data.data;
+  this.filtered = _data.data;
   this.eventHandler = _eventHandler;
   this.displayData = [];
   this.histData = [];
@@ -36,7 +36,7 @@ WhenVis.prototype.initVis = function() {
 
   /************* Foreign Code *********************/
 
-  var formatDate = d3.time.format("%b-%y");
+  var formatDate = d3.time.format("%m-%y");
 
   that.x = d3.time.scale().range([0, this.width]);
   that.y = d3.scale.linear().range([this.height, that.margin.bottom]);
@@ -53,7 +53,7 @@ WhenVis.prototype.initVis = function() {
   var parseDate = d3.time.format("%d/%m/%Y").parse;
 
   this.filtered.forEach(function(d) {
-    d.properties.article_date = parseDate(d.properties.article_date);
+    d.article_date = parseDate(d.article_date);
   });
 
   // Create the SVG drawing area
@@ -117,7 +117,7 @@ WhenVis.prototype.updateVis = function() {
 
 
   // Determine the first and list dates in the data set
-  var monthExtent = d3.extent(that.filtered, function(d) { return d.properties.article_date; });
+  var monthExtent = d3.extent(that.filtered, function(d) { return d.article_date; });
 
   // Create one bin per month, use an offset to include the first and last months
   var monthBins = null;
@@ -127,7 +127,7 @@ WhenVis.prototype.updateVis = function() {
   // Use the histogram layout to create a function that will bin the data
   var binByMonth = null;
   binByMonth = d3.layout.histogram()
-    .value(function(d) { return d.properties.article_date; })
+    .value(function(d) { return d.article_date; })
     .bins(monthBins);
 
   //alert(monthExtent);
@@ -138,7 +138,7 @@ WhenVis.prototype.updateVis = function() {
 
   // Scale the range of the data by setting the domain
   that.x.domain(d3.extent(monthBins));
-  that.y.domain([0, d3.max(that.histData, function(d) { return d.y; })]);
+  that.y.domain([0, d3.max(that.histData, function(d) { return d.y; })]).nice();
 
   // Set up one bar for each bin
   // Months have slightly different lengths so calculate the width for each bin
@@ -228,7 +228,7 @@ WhenVis.prototype.filterAndAggregate = function(_filter, _type) {
       that.filtered = that.data;
    } else {
       that.filtered = that.data.filter(function(d) {
-          return (d.properties.province == _filter.toUpperCase() )
+          return (d.province == _filter.toUpperCase() )
       })
    }  
   } 
