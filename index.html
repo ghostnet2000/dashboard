@@ -475,6 +475,32 @@
 
     <script>
      var MyEventHandler = { }
+     var _data;
+
+
+    var sortOnKeys = function(dict) {
+
+        var sorted = [];
+        var xyz = [];
+
+        for(var key in dict) {
+            sorted[sorted.length] = key;
+        }
+        sorted.sort();
+
+        var tempDict = {};
+        for(var i = 0; i < sorted.length; i++) {
+          tempDict[sorted[i]] = dict[sorted[i]];
+        }
+
+        for(var i = 0; i < categories.length; i++) {
+          xyz[i] = tempDict[categories[i]] != undefined ? tempDict[categories[i]] : 0;
+        }
+        
+        console.log(xyz);
+        
+        return xyz;
+    }
 
      $(document).ready(function() {
      
@@ -485,7 +511,18 @@
          dataType: "json",
          success: function (data, status, jqXHR) {
             // do something
-            console.log(data);
+            //this._data = data;
+
+            var count = function() {
+                var counts = {};
+
+                categories = ["WC", "EC", "KZN", "ZA" ]
+                
+                data.data.forEach(function(x) { counts[x.province] = (counts[x.province] || 0)+1; });
+                  _d = sortOnKeys(counts)
+                console.log(_d);
+            }();
+
 
             var neighborhoodVis = new CoastVis( d3.select("#map1"), data, [], MyEventHandler);
             var whenVis = new WhenVis(d3.select("#barGraph"), data, MyEventHandler);
@@ -496,8 +533,6 @@
          }
      });
     });
-
-
 
     /*
      * MAP 1 #map1
