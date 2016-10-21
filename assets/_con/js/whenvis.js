@@ -7,13 +7,11 @@
  */
 WhenVis = function(_parentElement, _data, _eventHandler) {
   this.parentElement = _parentElement;
-  this.data = _data.data;
-  this.filtered = _data.data;
+  this.data = null;
+  this.filtered = null;
   this.eventHandler = _eventHandler;
   this.displayData = [];
   this.histData = [];
-  this.breakdown = ['total'];
-  this.yVariable = ['commuter','leisure'];
 
   // Define all "constants" here
   this.margin = {
@@ -36,147 +34,194 @@ WhenVis.prototype.initVis = function() {
 
   /************* Foreign Code *********************/
 
-  var formatDate = d3.time.format("%m-%y");
+  that.x = d3.time.scale().range([0, that.width]);
 
-  that.x = d3.time.scale().range([0, this.width]);
-  that.y = d3.scale.linear().range([this.height, that.margin.bottom]);
+  that.y = d3.scale.linear()
+      .rangeRound([that.height, 0]);
 
+  that.z = d3.scale.category10();
 
-  that.xAxis = d3.svg.axis().scale(that.x)
-    .orient("bottom").tickFormat(formatDate);
+  that.xAxis = d3.svg.axis()
+      .scale(that.x)
+      .orient("bottom")
+      .ticks(d3.time.months)
+      .tickSize(7, 0)
+      .tickFormat(d3.time.format("%b%y"));
 
-  that.yAxis = d3.svg.axis().scale(that.y)
-    .orient("left").ticks(6);
+  that.stack = d3.layout.stack()
+      .values(function(d) {
+          return d.values;
+      });
 
+  that.yAxis = d3.svg.axis()
+      .scale(that.y)
+      .orient("right");
 
-  /**********************************************/
-  var parseDate = d3.time.format("%d/%m/%Y").parse;
+  this.svg = that.parentElement.append("svg")
+    .attr("width", that.width + that.margin.left + that.margin.right)
+    .attr("height", that.height + that.margin.top + that.margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + that.margin.left + "," + that.margin.top + ")");
 
-  this.filtered.forEach(function(d) {
-    d.article_date = parseDate(d.article_date);
-  });
-
-  // Create the SVG drawing area
-
-  this.svg = this.parentElement.append("svg")
-    .attr("width", this.width + this.margin.left + this.margin.right)
-    .attr("height", this.height + this.margin.top + this.margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
-
-  // Add the Y Axis and label
-  this.svg.append("g")
-     .attr("class", "y axis")
-     .call(that.yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Number of incidents");
-
-
-  this.svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0,"+ that.height +")")
-      .call(that.xAxis)
-    .append("text")
-      .attr("x",that.width/2)
-      .attr("y",40)
-      .text("Months");
-
-  this.updateVis();
-
-  this.svg.selectAll(".bar")
-      .data(that.histData)
-    .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return that.x(d.x); })
-      .attr("width", function(d) { return that.x(new Date(d.x.getTime() + d.dx))- that.x(d.x)-1; })
-      .attr("y", function(d) { return that.y(d.y); })
-      .attr("height", function(d) { return that.height - that.y(d.y); });
-
-  this.wrangleData();
-  // // call the update method
   this.updateVis();
 }
 
 WhenVis.prototype.wrangleData = function(_filterFunction, yVariable) {
   //alert(yVariable);
-  this.filtered = this.filterAndAggregate(_filterFunction, yVariable);
+  //this.filtered = this.filterAndAggregate(_filterFunction, yVariable);
 }
 
 WhenVis.prototype.updateVis = function() {
   var that = this;
 
-  // Get the data
+  $.ajax({
+    type: "GET",
+    url: "http://localhost:3000/api/media",
+    contentType: "application/json",
+    dataType: "json",
+    success: function (data, status, jqXHR) {
+      //that = this;
 
-  // Parse the date strings into javascript dates
-  //console.log(this.data);
-  
+      this.data = data.data;
+      this.filtered = data.data;
+      var color = d3.scale.category10();
 
+      var parseDate = d3.time.format("%d/%m/%Y").parse;
 
-  // Determine the first and list dates in the data set
-  var monthExtent = d3.extent(that.filtered, function(d) { return d.article_date; });
+      this.filtered.forEach(function(d) {
+        d.article_date = parseDate(d.article_date);
+        console.log(d.article_date);
+      })
 
-  // Create one bin per month, use an offset to include the first and last months
-  var monthBins = null;
-  var monthBins = d3.time.months(d3.time.month.offset(monthExtent[0],-1),
-                                 d3.time.month.offset(monthExtent[1],1));
+      // Determine the first and list dates in the data set
+      var monthExtent = d3.extent(this.filtered, function(d) { return d.article_date; });
 
-  // Use the histogram layout to create a function that will bin the data
-  var binByMonth = null;
-  binByMonth = d3.layout.histogram()
-    .value(function(d) { return d.article_date; })
-    .bins(monthBins);
+      // Create one bin per month, use an offset to include the first and last months
+      var monthBins = null;
+      var monthBins = d3.time.months(d3.time.month.offset(monthExtent[0],-1),
+                                     d3.time.month.offset(monthExtent[1],1));
 
-  //alert(monthExtent);
-  // Bin the data by month
-  that.histData = null;
-  that.histData = binByMonth(this.filtered);
-  //console.log(histData);
+      // Use the histogram layout to create a function that will bin the data
+      var binByMonth = null;
+      binByMonth = d3.layout.histogram()
+        .value(function(d) { return d.article_date; })
+        .bins(monthBins);
 
-  // Scale the range of the data by setting the domain
-  that.x.domain(d3.extent(monthBins));
-  that.y.domain([0, d3.max(that.histData, function(d) { return d.y; })]).nice();
+      var dataGroupedByProvince = d3.nest()
+          .key(function(d) {
+              console.log(d);
+              return d.province
+          })
+          .map(this.filtered, d3.map);
 
-  // Set up one bar for each bin
-  // Months have slightly different lengths so calculate the width for each bin
-  // Note: dx, the width of the histogram bin, is in milliseconds so convert the x value
-  // into UTC time and convert the sum back to a date in order to help calculate the width
-  // Thanks to npdoty for pointing this out in this stack overflow post:
-  // http://stackoverflow.com/questions/17745682/d3-histogram-date-based
+      var histDataByProvince = [];
+      dataGroupedByProvince.forEach(function(key, value) {
+          // Bin the data for each borough by month
+          var histData = binByMonth(value);
+          histDataByProvince.push({
+              borough: key,
+              values: histData
+          });
+      });
 
-  console.log(that.histData);
+      this.stackedHistData = that.stack(histDataByProvince);
 
-  // Add the X Axis
-  /*
-  alert(that.height);
+      // Scale the range of the data by setting the domain
+      that.x.domain(d3.extent(monthBins));
+      that.y.domain([0, d3.max(this.stackedHistData[this.stackedHistData.length - 1].values, function(d) {
+          return d.y + d.y0;
+      })]);
 
-  this.svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + that.height + ")")
-      .call(that.xAxis);
-  */
+      console.log(this.stackedHistData);
 
-  var bar = this.svg.selectAll(".bar")
-      .data(that.histData)
-    bar.enter()
-      .append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return that.x(d.x); })
-      .attr("width", function(d) { return that.x(new Date(d.x.getTime() + d.dx))- that.x(d.x)-1; })
-      .attr("y", function(d) { return that.y(d.y); })
-      .attr("height", function(d) { return that.height - that.y(d.y); });
+      var borough = that.svg.selectAll(".borough")
+            .data(this.stackedHistData)
+          .enter().append("g")
+            .attr("class", "borough")
+            .style("fill", function(d, i) {
+                return color(d.borough);
+            })
+            .style("stroke", function(d, i) {
+                return d3.rgb(color(d.borough)).darker();
+            });
 
-  this.svg.select(".y.axis")
-    .call(this.yAxis);
+        // Months have slightly different lengths so calculate the width for each bin
+        // Draw the rectangles, starting from the upper left corner and going down
+        borough.selectAll(".bar")
+            .data(function(d) {
+                return d.values;
+            })
+          .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", function(d) {
+                //console.log(d.x);
+                return that.x(d.x);
+            })
+            .attr("width", function(d) {
+                console.log(d.x);
+                return that.x(new Date(d.x.getTime() + d.dx)) - that.x(d.x) - 2;
+            })
+            .attr("y", function(d) {
+                //console.log(d.y0);
+                return that.y(d.y0 + d.y);
+            })
+            .attr("height", function(d) {
+                return that.y(d.y0) - that.y(d.y0 + d.y);
+            });
 
-  this.svg.select(".x.axis")
-    .call(this.xAxis);
+        // Add the X Axis
+        that.svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + that.height + ")")
+            .call(that.xAxis)
+            .selectAll("text")  
+              .style("text-anchor", "end")
+              .attr("dx", "-.8em")
+              .attr("dy", ".15em")
+              .attr("transform", "rotate(-65)" );
 
-  bar.exit().remove();
+        // Add the Y Axis and label
+        that.svg.append("g")
+            .attr("class", "y axis")
+            .call(that.yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -10)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Number of Incidents");
 
+        // Add the legend and center it horizontally
+        var maxLegendWidth = 110;
+        var xStart = (that.width - maxLegendWidth * color.domain().length) / 2;
+        var legend = that.svg.selectAll(".legend")
+            .data(color.domain().slice())
+          .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) {
+                return "translate(" + i * maxLegendWidth + ",0)";
+            });
+
+        legend.append("rect")
+            .attr("x", xStart)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", color);
+
+        legend.append("text")
+            .attr("x", xStart + 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "start")
+            .text(function(d) {
+                return d;
+            });
+    },
+
+    error: function (jqXHR, status) {
+       
+    }
+  });
 }
 
 /**
@@ -187,8 +232,7 @@ WhenVis.prototype.updateVis = function() {
  */
 
 WhenVis.prototype.onSelectionChange = function(d) {
-
-
+  /*
   var breakdown = d3.select('#formgroup').selectAll('.formgroup2.active');
   var yVariable = d3.select('#formgroup').selectAll('.formgroupy.active');
   breakdown = (breakdown.node()) ? breakdown.node().value : 'total';
@@ -198,14 +242,17 @@ WhenVis.prototype.onSelectionChange = function(d) {
 
   this.wrangleData(breakdown, yVariable);
   this.updateVis();
+  */
 }
 
 WhenVis.prototype.onTypeChange = function(_dom) {
+  /*
   if (this.dom != _dom) {
-  	this.dom = _dom;
-  	this.wrangleData(this.filter);
-  	this.updateVis();
+    this.dom = _dom;
+    this.wrangleData(this.filter);
+    this.updateVis();
   }
+  */
 }
 /*
  *
@@ -215,9 +262,8 @@ WhenVis.prototype.onTypeChange = function(_dom) {
  *
  * */
 
-/*
-
 WhenVis.prototype.filterAndAggregate = function(_filter, _type) {
+  /*
   //alert(_filter);
   // Set filter to a function that accepts all items
   var that = this;
@@ -236,11 +282,8 @@ WhenVis.prototype.filterAndAggregate = function(_filter, _type) {
    //
    //this.data = this.data.filter(_filter);
   return that.filtered;
+  */
 }
-
-*/
-
-
 
 // WhenVis.prototype.mouseover = function() {
 //   d3.selectAll(".area").style("opacity",0.3);
