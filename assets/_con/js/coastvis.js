@@ -56,7 +56,7 @@ CoastVis.prototype.initVis = function() {
 
   this.map = L.mapbox.map('map1', 'niamhdurfee.loko84n8',{center: [-25.609990, 25.55971], zoom: 5});
 
-  var color = d3.scale.category20c();
+  var color = d3.scale.category10();
   this.color = d3.scale.ordinal().domain(this.neighborhoods.map(function (d) { return d.name})).range(this.neighborhoods.map(function (d,i) {return color(i); }));
 
 
@@ -96,7 +96,7 @@ CoastVis.prototype.updateVis = function() {
        //s = that.filter(o),
        
        r = 25000,
-       c = that.color(o.province);
+       c = that.getColor(o.province);
        
       var popup = L.popup(popup_options).setContent(o.article_title);
       var circle = L.circle([o.lat, o.lon], r, {color: c, opacity: 1, fillOpacity: 0.8, className:'station',weight:2}).bindPopup(popup)
@@ -168,4 +168,21 @@ CoastVis.prototype.data = function(value) {
 
 CoastVis.prototype.getRadius = function(d) {
   return Math.sqrt(parseFloat(d)/Math.PI)
+}
+
+CoastVis.prototype.getColor = function(d) {
+  var c;
+
+  if(d == "WC")
+    c = "#109618";
+  else if( d == "KZN" )
+    c = "#dc3912";
+  else if( d == "EC" )
+    c = "#3366cc";
+  else {
+    c = "#ff9900"
+  }
+
+
+  return c;
 }
