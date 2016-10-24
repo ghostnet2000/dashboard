@@ -456,7 +456,7 @@
     <!-- Main -->
     <script type="text/javascript" src="assets/_con/js/_con.js"></script>
     <script type="text/javascript" src="assets/_con/js/whenvis.js"></script>
-
+    <script type="text/javascript" src="assets/_con/libs/colorbrewer.min.js"></script>
     <!-- Google Prettify -->
     <script type="text/javascript" src="bower_components/code-prettify/src/prettify.js"></script>
 
@@ -515,6 +515,8 @@
             var neighborhoodVis = new CoastVis( d3.select("#map1"), data, [], MyEventHandler);
             var whenVis = new WhenVis(d3.select("#barGraph"), data, MyEventHandler);
 
+                var col = (colorbrewer.Pastel1[4].slice());
+
            /*
              * Flot Pie Chart
              */
@@ -523,19 +525,19 @@
                 var data = [{
                     label: categories[0],
                     data: _d[0],
-                    color: "#109618"
+                    color: col[0]
                 }, {
                     label: categories[1],
                     data: _d[1],
-                    color: "#3366cc"
+                    color: col[1]
                 }, {
                     label: categories[2],
                     data: _d[2],
-                    color: "#dc3912"
+                    color: col[2]
                 }, {
                     label: categories[3],
                     data: _d[3],
-                    color: "#ff9900"
+                    color: col[3]
                 }
                 ];
                 var options = {
