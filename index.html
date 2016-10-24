@@ -511,7 +511,7 @@
          dataType: "json",
          success: function (data, status, jqXHR) {
             // do something
-            //this._data = data;
+            _d = [];
 
             var count = function() {
                 var counts = {};
@@ -520,12 +520,76 @@
                 
                 data.data.forEach(function(x) { counts[x.province] = (counts[x.province] || 0)+1; });
                   _d = sortOnKeys(counts)
-                console.log(_d);
+                
+                var paired = [];
+
+                for(var i = 0; i < categories.length; i++) {
+
+                }
             }();
+
 
 
             var neighborhoodVis = new CoastVis( d3.select("#map1"), data, [], MyEventHandler);
             var whenVis = new WhenVis(d3.select("#barGraph"), data, MyEventHandler);
+
+           /*
+             * Flot Pie Chart
+             */
+            (function() {
+                var chart = $("#pie");
+                var data = [{
+                    label: categories[0],
+                    data: _d[0],
+                    color: "#90a4ae"
+                }, {
+                    label: categories[1],
+                    data: _d[1],
+                    color: "#7986cb"
+                }, {
+                    label: categories[2],
+                    data: _d[2],
+                    color: "#9575cd"
+                }, {
+                    label: categories[3],
+                    data: _d[3],
+                    color: "#4db6ac"
+                }
+                ];
+                var options = {
+                    series: {
+                        pie: {
+                            show: true
+                        }
+                    },
+                    grid: {
+                        hoverable: true
+                    },
+                    legend: {
+                        backgroundOpacity: 0,
+                        labelBoxBorderColor: "#fff"
+                    },
+                    tooltip: true,
+                    tooltipOpts: {
+                        content: "%p.0%, %s", // show percentages, rounding to 2 decimal places
+                        shifts: {
+                            x: 20,
+                            y: 20
+                        },
+                        defaultTheme: false
+                    }
+                };
+
+                function initFlot() {
+                    $.plot(chart, data, options);
+                    chart.find('.legend table').css('width', 'auto')
+                        .find('td').css('padding', 2);
+                }
+                initFlot();
+                $(window).on('resize', initFlot);
+
+            }());
+
          },
 
          error: function (jqXHR, status) {
@@ -533,6 +597,7 @@
          }
      });
     });
+
 
     /*
      * MAP 1 #map1
