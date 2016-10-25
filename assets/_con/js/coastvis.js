@@ -8,7 +8,7 @@
 CoastVis = function(_parentElement, _data, _metaData,_eventHandler) {
   this.parentElement = _parentElement;
   this.stationData = _data.data;;
-  console.log(_data);
+  //console.log(_data);
   this.filtered = _data.data;
   this.stations = d3.keys(_data);
   this.neighborhoods = _metaData;
@@ -171,16 +171,16 @@ CoastVis.prototype.getRadius = function(d) {
 }
 
 CoastVis.prototype.getColor = function(d) {
-  var c;
+  var col = (colorbrewer.RdGy[4].slice());
 
   if(d == "WC")
-    c = "#109618";
-  else if( d == "KZN" )
-    c = "#dc3912";
+    c = col[0];
   else if( d == "EC" )
-    c = "#3366cc";
+    c = col[1];
+  else if( d == "KZN" )
+    c = col[2];
   else {
-    c = "#ff9900"
+    c = col[3]
   }
 
 

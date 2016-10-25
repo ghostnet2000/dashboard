@@ -16,7 +16,7 @@ NeighborhoodVis = function(_parentElement, _data, _metaData,_eventHandler) {
   this.filterHood = function () { return true; };
   //this.filter = function (d) { return d.overall.t; };
 
-  console.log(this.stationData)
+  //console.log(this.stationData)
 
   // Define all "constants" here
   this.margin = {

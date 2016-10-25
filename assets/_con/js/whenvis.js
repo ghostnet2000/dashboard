@@ -84,13 +84,15 @@ WhenVis.prototype.updateVis = function() {
 
       this.data = data.data;
       this.filtered = data.data;
+      var N = 4
       var color = d3.scale.category10();
+
 
       var parseDate = d3.time.format("%d/%m/%Y").parse;
 
       this.filtered.forEach(function(d) {
         d.article_date = parseDate(d.article_date);
-        console.log(d.article_date);
+        //console.log(d.article_date);
       })
 
       // Determine the first and list dates in the data set
@@ -109,7 +111,7 @@ WhenVis.prototype.updateVis = function() {
 
       var dataGroupedByProvince = d3.nest()
           .key(function(d) {
-              console.log(d);
+              //console.log(d);
               return d.province
           })
           .map(this.filtered, d3.map);
@@ -132,7 +134,7 @@ WhenVis.prototype.updateVis = function() {
           return d.y + d.y0;
       })]);
 
-      console.log(this.stackedHistData);
+      //console.log(this.stackedHistData);
 
       var borough = that.svg.selectAll(".borough")
             .data(this.stackedHistData)
@@ -158,7 +160,7 @@ WhenVis.prototype.updateVis = function() {
                 return that.x(d.x);
             })
             .attr("width", function(d) {
-                console.log(d.x);
+                //console.log(d.x);
                 return that.x(new Date(d.x.getTime() + d.dx)) - that.x(d.x) - 2;
             })
             .attr("y", function(d) {
