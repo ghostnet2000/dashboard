@@ -301,16 +301,16 @@
         </div>
         <!-- /Breadcrumb -->
 
-        <!-- Stats Panels 
+        <!-- Stats Panels --> 
         <div class="row">
-            <div class="col l4 s12">
+            <div class="col l3 s12">
                 <a href="#" class="card-panel stats-card indigo lighten-2 indigo-text text-lighten-5">
                     <i class="fa fa-comments-o"></i>
-                    <span class="count">145</span>
-                    <div class="name">Feedbacks</div>
+                    <span class="count" id="a"></span>
+                    <div class="name">Illigal Fishing</div>
                 </a>
             </div>
-            <div class="col l4 s12">
+            <div class="col l3 s12">
                 <a href="#" class="card-panel stats-card blue lighten-2 blue-text text-lighten-5">
                     <i class="fa fa-send"></i>
 
@@ -318,23 +318,35 @@
                         <div id="sparkcard1"></div>
                     </div>
 
-                    <span class="count">342</span>
-                    <div class="name">Posts</div>
+                    <span class="count" id="b"></span>
+                    <div class="name"> Protecting the oceans </div>
                 </a>
             </div>
-            <div class="col l4 s12">
+            <div class="col l3 s12">
                 <div class="card-panel stats-card teal lighten-2 green-text text-lighten-5">
                     <div class="progress small teal lighten-1">
                         <div class="teal darken-1" style="width: 42%"></div>
                     </div>
 
                     <i class="fa fa-spinner"></i>
-                    <span class="count">42%</span>
-                    <div class="name">Server Load</div>
+                    <span class="count" id="c"></span>
+                    <div class="name">Red Tide</div>
                 </div>
             </div>
+
+            <div class="col l3 s12">
+                <div class="card-panel stats-card teal lighten-2 green-text text-lighten-5">
+                    <div class="progress small teal lighten-1">
+                        <div class="teal darken-1" style="width: 42%"></div>
+                    </div>
+
+                    <i class="fa fa-spinner"></i>
+                    <span class="count" id="d"></span>
+                    <div class="name">Operation Phakisa</div>
+                </div>
+            </div>        
         </div>
-         /Stats Panels -->
+         <!-- Stats Panels -->
 
         <div class="row">
             <!-- map -->
@@ -527,6 +539,7 @@
          success: function (data, status, jqXHR) {
             // do something
             _d = [];
+            stat = []
 
             var count = function() {
                 var counts = {};
@@ -537,6 +550,20 @@
                   _d = sortOnKeys(counts)
             }();
 
+
+            var stats = function() {
+                var counts = {};
+
+                categories = ["illegal fishing", "Protecting the oceans", "red tide", "Operation Phakisa" ]
+                
+                data.data.forEach(function(x) { counts[x.topic] = (counts[x.topic] || 0)+1; });
+                  stat = sortOnKeys(counts)
+
+                $("#a").text(counts["illegal fishing"]);
+                $("#b").text(counts["Protecting the oceans"]);
+                $("#c").text(counts["red tide"]);
+                $("#d").text(counts["Operation Phakisa"]);
+            }();
 
 
             var neighborhoodVis = new CoastVis( d3.select("#map1"), data, [], MyEventHandler);
