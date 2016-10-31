@@ -137,7 +137,7 @@
 
                             <div class="row mt-0">
                                 <div class="col s2">
-                                    <img src="assets/_con/images/user2.jpg" alt="" class="circle responsive-img">
+                                    <img src="assets/_con/images/user9.jpg" alt="" class="circle responsive-img">
                                 </div>
                                 <div class="col s10">
                                     <span class="media-date">9:02 AM</span>
@@ -405,7 +405,7 @@
             <!-- bar graph -->
             <div class="col s12 l12">
                 <div class="card">
-                    <div id="brush" class="brush" style="height: 100px;"></div>
+                    <svg id="brush" style="text-align: center; padding: 10px 15px 15px 15px; float: left; background: #dddddd; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px;"></svg>
                 </div>
             </div>
         </div>
@@ -494,7 +494,7 @@
     <!-- Main -->
     <script type="text/javascript" src="assets/_con/js/_con.js"></script>
     <script type="text/javascript" src="assets/_con/js/whenvis.js"></script>
-    <script type="text/javascript" src="assets/_con/js/brush.js"></script>
+    <script type="text/javascript" src="assets/_con/js/js/brush2.js"></script>
     <script type="text/javascript" src="assets/_con/libs/colorbrewer.min.js"></script>
     <!-- Google Prettify -->
     <script type="text/javascript" src="bower_components/code-prettify/src/prettify.js"></script>
@@ -627,15 +627,25 @@
 
             }());
 
-            var display = d3.select("#brush")
+            _svg = d3.select("#brush")
 
             //table
-            var tdiv = display.append("div").classed("brush", true)
+            //var tdiv = brushdiv.append("svg").classed("brush", true)
+            //var brush = d3.chart.brush()
+            //    brush
+            //      .data(data.data)
+            //      .width(900)
+
+            //brush(tdiv);
+
+            var bgroup = _svg.append("svg")
+              .attr("transform", "translate(100, 430)")
             var brush = d3.chart.brush()
-                brush
-                  .data(data.data)
-                  .width(800);
-            brush(tdiv);
+            brush
+              .data(data.data)
+              .width(900)
+              //.height(30)
+            brush(_svg)   
 
          },
 

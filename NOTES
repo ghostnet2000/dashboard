@@ -1,0 +1,7 @@
+NOTES
+=====
+
+
+1)
+
+ogr2ogr -f "PostgreSQL" PG:"host=127.0.0.1 port=5432 user='postgres' password='postgres' dbname='datahub'" "output.json"
